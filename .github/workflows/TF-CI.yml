@@ -1,0 +1,57 @@
+name: TF-CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "Solution/**"
+
+jobs:
+  tf-validation:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./Solution
+    steps:
+      # - name: Azure authentication
+      #   uses: azure/login@v1
+      #   with:
+      #     creds: ${{ secrets.AZURE_CREDENTIALS  }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        #with:
+        # terraform_version: 0.13.0
+        # cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      #- name: List Repo
+      #id: list
+      #run: dir -s
+      #run: ls -R
+
+      - name: Terraform Init
+        id: init
+        env:
+          ARM_CLIENT_ID: 5fe27ab0-8634-40e3-9eb8-72aeec9a0166
+          ARM_CLIENT_SECRET: dyl8Q~Aa8xnypoEv~dhUEc6ihHy6O_mwj1h5pbuk
+          ARM_SUBSCRIPTION_ID: 4eeae01c-b977-4970-8729-c18371a43c02
+          ARM_TENANT_ID: bdda9f47-1090-4098-acfc-50175f122b1e
+        run: terraform init
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      # - name: Terraform Plan
+      #   id: plan
+      #   env:
+      #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID  }}
+      #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET  }}
+      #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID  }}
+      #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID  }}
+      #   run: terraform plan
