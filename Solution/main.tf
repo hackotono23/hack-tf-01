@@ -1,10 +1,10 @@
 
 terraform {
   backend "azurerm" {
-    resource_group_name  = "terraform"
-    storage_account_name = "hackterraform"
+    resource_group_name  = "tfstate"
+    storage_account_name = "sttfstate12223322"
     container_name       = "tfstate"
-    key                  = "prod.terraform.tfstate"    
+    key                  = "prod.terraform.tfstate"
   }
   required_providers {
     azurerm = {
