@@ -1,0 +1,69 @@
+name: TF-CD
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  workflow_run:
+    workflows: [TF-CI]
+    types:
+      - completed
+
+jobs:
+  tf-plan-apply:
+    runs-on: windows-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./Solution
+    steps:
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # - name: Terraform Format
+      #   id: fmt
+      #   working-directory: ./Solution
+      #   run: terraform fmt -check
+
+      - name: Terraform Init
+        id: init
+        env:
+          ARM_CLIENT_ID: 5fe27ab0-8634-40e3-9eb8-72aeec9a0166
+          ARM_CLIENT_SECRET: dyl8Q~Aa8xnypoEv~dhUEc6ihHy6O_mwj1h5pbuk
+          ARM_SUBSCRIPTION_ID: 4eeae01c-b977-4970-8729-c18371a43c02
+          ARM_TENANT_ID: bdda9f47-1090-4098-acfc-50175f122b1e
+        run: terraform init
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        env:
+          ARM_CLIENT_ID: 5fe27ab0-8634-40e3-9eb8-72aeec9a0166
+          ARM_CLIENT_SECRET: dyl8Q~Aa8xnypoEv~dhUEc6ihHy6O_mwj1h5pbuk
+          ARM_SUBSCRIPTION_ID: 4eeae01c-b977-4970-8729-c18371a43c02
+          ARM_TENANT_ID: bdda9f47-1090-4098-acfc-50175f122b1e
+        run: terraform plan --out=tfplan
+
+      - name: Terraform Apply
+        id: apply
+        env:
+          ARM_CLIENT_ID: 5fe27ab0-8634-40e3-9eb8-72aeec9a0166
+          ARM_CLIENT_SECRET: dyl8Q~Aa8xnypoEv~dhUEc6ihHy6O_mwj1h5pbuk
+          ARM_SUBSCRIPTION_ID: 4eeae01c-b977-4970-8729-c18371a43c02
+          ARM_TENANT_ID: bdda9f47-1090-4098-acfc-50175f122b1e
+        run: terraform apply tfplan
+
+      - name: Terraform DESTROY
+        id: destroy
+        env:
+          ARM_CLIENT_ID: 5fe27ab0-8634-40e3-9eb8-72aeec9a0166
+          ARM_CLIENT_SECRET: dyl8Q~Aa8xnypoEv~dhUEc6ihHy6O_mwj1h5pbuk
+          ARM_SUBSCRIPTION_ID: 4eeae01c-b977-4970-8729-c18371a43c02
+          ARM_TENANT_ID: bdda9f47-1090-4098-acfc-50175f122b1e
+        run: terraform destroy --auto-approve
